@@ -93,6 +93,7 @@
     <ClInclude Include="include\ray.h" />
     <ClInclude Include="include\hittable_list.h" />
     <ClInclude Include="include\sphere.h" />
+    <ClInclude Include="include\texture.h" />
     <ClInclude Include="include\vec3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

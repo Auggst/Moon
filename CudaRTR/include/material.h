@@ -1,19 +1,24 @@
 #pragma once
 
 #include "my_utility.h"
+#include "texture.h"
 
 struct hit_record;
-enum Material_type { Lambertian, Metal, Dielectric };
+enum class Material_type { Lambertian, Metal, Dielectric };
 
 class material {
 public:
 	color albedo;
 	double fuzz;
 	Material_type mat_type;
+	Moon::texture* tex;
 public:
 	__device__
-		material(const color& a, double f, const Material_type& _mat_type) : albedo(a), fuzz(f < 1 ? f : 1), mat_type(_mat_type) {}
-
+		material(const color& a, double f, const Material_type& _mat_type) : albedo(a), fuzz(f < 1 ? f : 1), mat_type(_mat_type) { tex = new Moon::texture(); }
+	__device__
+		material(const color& a, double f, const Material_type& _mat_type, Moon::texture* _tex) : albedo(a), fuzz(f < 1 ? f : 1), mat_type(_mat_type), tex(_tex) {}
+	__device__
+		~material() { delete tex; tex = nullptr; }
 	__device__
 		bool scatter(
 			const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered, curandStateXORWOW_t* state 
@@ -30,25 +35,25 @@ private:
 
 __device__
 bool material::scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered, curandStateXORWOW_t* state) const {
-	if (this->mat_type == Lambertian) {
+	if (this->mat_type == Material_type::Lambertian) {
 		vec3 scatter_direction = rec.normal + fuzz * random_unit_vector(state);
 
 		//避免法线反向
 		if (scatter_direction.near_zero())
 			scatter_direction = rec.normal;
 		scatter_direction = unit_vector(scatter_direction);
-		scattered = ray(rec.p, scatter_direction);
-		attenuation = albedo;
+		scattered = ray(rec.p, scatter_direction, r_in.time());
+		attenuation = tex->value(rec.u, rec.v, rec.p);
 		return true;
 	}
-	else if (this->mat_type == Metal) {
+	else if (this->mat_type == Material_type::Metal) {
 		vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
 
-		scattered = ray(rec.p, reflected + fuzz * random_in_unit_sphere(state));
+		scattered = ray(rec.p, reflected + fuzz * random_in_unit_sphere(state), r_in.time());
 		attenuation = albedo;
 		return (dot(scattered.direction(), rec.normal) > 0);
 	}
-	else if (this->mat_type == Dielectric) {
+	else if (this->mat_type == Material_type::Dielectric) {
 		attenuation = color(1.0, 1.0, 1.0);
 		double refraction_ratio = rec.front_face ? (1.0 / fuzz) : fuzz;
 
@@ -60,7 +65,7 @@ bool material::scatter(const ray& r_in, const hit_record& rec, color& attenuatio
 		bool schlick = this->reflectance(cos_theta, refraction_ratio) > Moon::random_double(state);
 		vec3 direction = (cannot_refract || schlick) ? reflect(unit_direction, rec.normal) : refract(unit_direction, rec.normal, refraction_ratio);
 
-		scattered = ray(rec.p, direction);
+		scattered = ray(rec.p, direction, r_in.time());
 		return true;
 	}
 	else {

@@ -135,6 +135,7 @@ __global__ void kernel(unsigned char* ptr, Moon::camera** cam, hittable_list** w
      int x = threadIdx.x + blockIdx.x * blockDim.x;
      int y = threadIdx.y + blockIdx.y * blockDim.y;
      int offset = x + y * blockDim.x * gridDim.x;
+     if (x >= 512 || y >= 512 || offset >= 262144) return;
      int seed = offset;
      curandStateXORWOW_t rand_state;
      curand_init(seed, 0, 0, &rand_state);
@@ -143,7 +144,7 @@ __global__ void kernel(unsigned char* ptr, Moon::camera** cam, hittable_list** w
      for (size_t s = 0; s < SAMPLES; ++s) {
          double u = double(x + Moon::random_double(&rand_state)) / (double)(DIM - 1);
          double v = double(y + Moon::random_double(&rand_state)) / (double)(DIM - 1);
-         ray r = (*cam)->get_ray(u, v);
+         ray r = (*cam)->get_ray(u, v, &rand_state);
 
          pixel_color += ray_color(r, *world, &rand_state);
      }
@@ -170,10 +171,6 @@ int main(void) {
 
     get_device_info();
 
-    //图片大小
-    const auto aspect_ratio = 1.0;
-    const int image_width = 512;
-    const int image_height = static_cast<int>(image_width / aspect_ratio);
 
     DataBlock   data;   //gpu数据块
     // 计时器
@@ -206,7 +203,6 @@ int main(void) {
     // generate a bitmap from our sphere data
     dim3    grids(DIM / 16, DIM / 16);
     dim3    threads(16, 16);
-    cudaDeviceSynchronize();
     kernel << <grids, threads >> > (dev_bitmap, device_cam, device_world);
     cudaDeviceSynchronize();
 
@@ -214,6 +210,7 @@ int main(void) {
     HANDLE_ERROR(cudaMemcpy(bitmap.get_ptr(), dev_bitmap,
         bitmap.image_size(),
         cudaMemcpyDeviceToHost));
+    cudaDeviceSynchronize();
 
     // get stop time, and display the timing results
     HANDLE_ERROR(cudaEventRecord(stop, 0));
@@ -221,8 +218,8 @@ int main(void) {
     float   elapsedTime;
     HANDLE_ERROR(cudaEventElapsedTime(&elapsedTime,
         start, stop));
-    printf("Time to generate:  %3.1f ms\n", elapsedTime);
-    printf("FPS: %3.1f\n", 1000.0 / elapsedTime);
+    printf("Time to generate:  %3.1f ms, %3.1f min\n", elapsedTime, elapsedTime / (1000 * 60));
+    //printf("FPS: %3.1f\n", 1000.0 / elapsedTime);
 
     HANDLE_ERROR(cudaFree(device_world));
     destroy_scene_device << <1, 1 >> > (device_world);

@@ -40,7 +40,7 @@ namespace Moon {
 #include "ray.h"
 #include "vec3.h"
 
-__device__
+__forceinline__ __device__
 vec3 random_in_unit_sphere(curandStateXORWOW_t* state) {
 	while (true) {
 		vec3 p = vec3::random(-1.0, 1.0, state);
@@ -49,12 +49,12 @@ vec3 random_in_unit_sphere(curandStateXORWOW_t* state) {
 	}
 }
 
-__device__
+__forceinline__ __device__
 vec3 random_unit_vector(curandStateXORWOW_t* state){
 	return unit_vector(random_in_unit_sphere(state));
 }
 
-__device__
+__forceinline__ __device__
 vec3 random_in_hemisphere(const vec3& normal, curandStateXORWOW_t* state) {
 	while (true) {
 		vec3 in_unit_sphere = random_in_unit_sphere(state);
@@ -62,5 +62,14 @@ vec3 random_in_hemisphere(const vec3& normal, curandStateXORWOW_t* state) {
 			return in_unit_sphere;
 		else
 			return -in_unit_sphere;
+	}
+}
+
+__forceinline__ __device__
+vec3 random_in_unit_disk(curandStateXORWOW_t* state) {
+	while (true) {
+		auto p = vec3(Moon::random_double(-1.0, 1.0, state), Moon::random_double(-1.0, 1.0, state), 0);
+		if (p.length_squared() >= 1) continue;
+		return p;
 	}
 }
