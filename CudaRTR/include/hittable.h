@@ -2,7 +2,7 @@
 
 #include "ray.h"
 
-enum Material_type;
+enum class Material_type;
 class material;
 class lambertian;
 
@@ -12,6 +12,7 @@ struct hit_record {
 	vec3 normal;
 	material* mat_ptr;
 	double t;
+	double u, v;
 	bool front_face;
 
 	__forceinline__ __device__ __host__

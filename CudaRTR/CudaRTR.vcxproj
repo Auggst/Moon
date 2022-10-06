@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\camera.h" />
+    <ClInclude Include="include\engine.h" />
     <ClInclude Include="include\helper_cuda.h" />
     <ClInclude Include="include\helper_string.h" />
     <ClInclude Include="include\hittable.h" />
@@ -93,7 +94,15 @@
     <ClInclude Include="include\ray.h" />
     <ClInclude Include="include\hittable_list.h" />
     <ClInclude Include="include\sphere.h" />
+    <ClInclude Include="include\stb_image.h" />
+    <ClInclude Include="include\texture.h" />
     <ClInclude Include="include\vec3.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\engine.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="images\earthmap.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
