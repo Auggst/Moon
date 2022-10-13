@@ -1,16 +1,17 @@
 #pragma once
+#ifndef MOON_HITTABLE_H_
+#define MOON_HITTABLE_H_
 
-#include "ray.h"
+#include <include/ray.h>
 
-enum class Material_type;
-class material;
-class lambertian;
+extern enum class MaterialType;
+extern class Material;
 
 
 struct hit_record {
 	point3 p;
 	vec3 normal;
-	material* mat_ptr;
+	Material* mat_ptr;
 	double t;
 	double u, v;
 	bool front_face;
@@ -22,8 +23,4 @@ struct hit_record {
 	}
 };
 
-class hittable {
-public:
-	__device__ __host__
-	virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const = 0;
-};
+#endif // !MOON_HITTABLE_H_

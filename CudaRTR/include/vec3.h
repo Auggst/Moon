@@ -1,6 +1,11 @@
 #pragma once
+#ifndef MOON_VEC3_H_
+#define MOON_VEC3_H_
+
 #include <cmath>
 #include <cstdio>
+
+#include <include/my_utility.h>
 
 using std::sqrt;
 
@@ -8,10 +13,8 @@ class vec3 {
 public:
 		double val[3];
 public:
-	__device__ __host__
-	vec3() :val{ 0.0, 0.0, 0.0 } {}
-	__device__ __host__
-	vec3(double _x, double _y, double _z) : val{ _x, _y,_z } {}
+	__device__ __host__ vec3() :val{ 0.0, 0.0, 0.0 } {}
+	__device__ __host__ vec3(double _x, double _y, double _z) : val{ _x, _y,_z } {}
 
 	__device__ __host__
 	double x() const { return val[0]; }
@@ -132,15 +135,47 @@ inline vec3 unit_vector(vec3 v) {
 	return v / v.length();
 }
 
-__forceinline__ __device__
+__forceinline__ __device__ __host__
 inline vec3 reflect(const vec3& v, const vec3& n) {
 	return v - 2 * dot(v, n) * n;
 }
 
-__forceinline__ __device__
+__forceinline__ __device__ __host__
 inline vec3 refract(const vec3& uv, const vec3& n, double etai_over_etat) {
 	auto cos_theta = fmin(dot(-uv, n), 1.0);
 	vec3 r_out_perp = etai_over_etat * (uv + cos_theta * n);
 	vec3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.length_squared())) * n;
 	return r_out_perp + r_out_parallel;
 }
+
+__forceinline__ __device__ inline vec3 random_in_unit_sphere(curandStateXORWOW_t* state) {
+	while (true) {
+		vec3 p = vec3::random(-1.0, 1.0, state);
+		if (p.length_squared() >= 1) continue;
+		return p;
+	}
+}
+
+__forceinline__ __device__ inline vec3 random_unit_vector(curandStateXORWOW_t* state){
+	return unit_vector(random_in_unit_sphere(state));
+}
+
+__forceinline__ __device__ inline vec3 random_in_hemisphere(const vec3& normal, curandStateXORWOW_t* state) {
+	while (true) {
+		vec3 in_unit_sphere = random_in_unit_sphere(state);
+		if (dot(in_unit_sphere, normal) > 0.0)
+			return in_unit_sphere;
+		else
+			return -in_unit_sphere;
+	}
+}
+
+__forceinline__ __device__ inline vec3 random_in_unit_disk(curandStateXORWOW_t* state) {
+	while (true) {
+		auto p = vec3(Moon::random_double(-1.0, 1.0, state), Moon::random_double(-1.0, 1.0, state), 0);
+		if (p.length_squared() >= 1) continue;
+		return p;
+	}
+}
+
+#endif // !MOON_VEC3_H_
