@@ -22,7 +22,7 @@ class Material {
    __device__ bool Scatter(
 						const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered, curandStateXORWOW_t* state 
 					);
-	__device__ __host__ color Emitted(double u, double v, const point3& p);
+	__device__ color Emitted(double u, double v, const point3& p);
  public:
   color albedo;
   double fuzz;

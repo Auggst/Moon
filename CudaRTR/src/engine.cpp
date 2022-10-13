@@ -10,29 +10,72 @@ Engine::Engine() {
   this->cam = nullptr;
   this->window = nullptr;
   this->scene = nullptr;
+ this->render = new RayTraceRenderer();
+  this->dev_manager = DeviceManager();
 }
 Engine::Engine(Camera* _cam, Hittable_list* _scene) {
   this->cam = _cam;
   this->scene = _scene;
+  this->window = nullptr;
+  this->render = new RayTraceRenderer();
+  this->dev_manager = DeviceManager();
 }
 Engine::~Engine() {
-  //单例模式存储在静态存储区，因此不需要释放
+  delete this->render;
+  this->render = nullptr;
   delete this->cam;
   this->cam = nullptr;
+  delete this->scene;
+  this->scene = nullptr;
+
   printf("Engine is done! \n");
 }
 
-void Engine::Init() {
+void Engine::Init(int window_width, int window_height, size_t depth_max, size_t samples) {
+  //相机和场景初始化
+  printf("Loading camera...\n");
+  point3 lookfrom(278.0, 278.0, -800.0);
+  point3 lookat(278.0, 278.0, 0.0);
+  vec3 vup(0.0, 1.0, 0.0);
+  auto dist_to_focus = 10.0;
+  auto aperture = 0.1;
+  this->cam = new Camera(lookfrom, lookat, vup, 40.0, 1.0, aperture, dist_to_focus, 0.0, 1.0);
+  printf("Camera loading is done!\n");
+
+  printf("Loading secne...\n");
+  this->scene = new Hittable_list(2);
+  printf("Scene loading is done!\n");
+
   if (this->cam == nullptr) this->cam = new Camera();
   if (this->scene == nullptr) this->scene = new Hittable_list(0);
 
+  //渲染器初始化
+  this->render->max_depth = depth_max;
+  this->render->samples = samples;
+  this->render->width = window_width;
+  this->render->height = window_height;
+
+
+  //设备管理器初始化
+  this->dev_manager.host_data.cam_ptr = this->cam;
+  this->dev_manager.host_data.scene_ptr = this->scene;
+  this->dev_manager.host_data.img_ptr = nullptr;
+  this->dev_manager.host_data.width = window_width;
+  this->dev_manager.host_data.height = window_height;
+  this->dev_manager.host_data.img_size = window_width * window_height * 4;
+  this->dev_manager.dev_data.img_size = window_width * window_height * 4;
+  this->dev_manager.dev_data.width = window_width;
+  this->dev_manager.dev_data.height = window_height;
+
+
+  //glfw和imgui初始化
   glfwInit();//初始化
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);//配置GLFW
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);//配置GLFW
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);//
   glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-  this->window =  glfwCreateWindow(512, 512, "Moon", nullptr, nullptr);
+  this->window =  glfwCreateWindow(window_width, window_height, "Moon", nullptr, nullptr);
 
   if (this->window==nullptr)
   {
@@ -50,11 +93,25 @@ void Engine::Init() {
 }
 
 void Engine::Update() {
+  //设备管理器配置
+  this->dev_manager.PrintDeviceInfo();
+  this->dev_manager.ToDevice();
+  this->dev_manager.BindOpenGL();
   bool show_demo_window = true;
   bool show_another_window = false;
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
   while (!glfwWindowShouldClose(this->window)) {
 	  /* Render here */
+	  this->render->Render(this->dev_manager.dev_data.img_ptr,
+						   *this->render,
+						   this->dev_manager.dev_data.cam_ptr,
+						   this->dev_manager.dev_data.scene_ptr
+							);
+	  glDrawPixels(this->dev_manager.dev_data.width,
+				   this->dev_manager.dev_data.height,
+		           GL_RGBA,
+				   GL_UNSIGNED_BYTE,
+				   this->dev_manager.dev_data.img_ptr);
 
 	  /* Swap front and back buffers */
 	  ImGui_ImplOpenGL3_NewFrame();

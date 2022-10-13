@@ -9,6 +9,8 @@
 #include <memory>
 
 #include <include/hittable_list.h>
+#include <include/device_manage.h>
+#include <include/renderer.h>
 
 extern class Camera;
 class Engine {
@@ -21,7 +23,7 @@ class Engine {
 
   static Engine& get_instance() { static Engine value; return value;}
 
-  void Init();
+  void Init(int window_width, int window_height, size_t depth_max, size_t samples);
   void Update();
   //void On_mouse_move(int x, int y);
   //void On_mouse_scroll(int a);
@@ -29,6 +31,9 @@ class Engine {
   Camera* cam;
   Hittable_list* scene;
   GLFWwindow* window;
+  RayTraceRenderer* render;
+  DeviceManager dev_manager;
+  
 };
 
 #endif //MOON_ENGINE_H_

@@ -28,23 +28,23 @@ Hittable_list::Hittable_list(const size_t size) {
 	mat_list = new Material * [size];
 	objects = new HitObject * [size];
 
-	//mat_list[0] = new material(color(0.65, 0.05, 0.05), 1.0, Material_type::Lambertian);	//红
-	//mat_list[1] = new material(color(0.73, 0.73, 0.73), 1.0, Material_type::Lambertian);	//白
-	//mat_list[2] = new material(color(0.12, 0.45, 0.15), 1.0, Material_type::Lambertian);	//绿
-	//mat_list[3] = new material(color(15, 15, 15), 1.0, Material_type::Diffuse_light);		//光
+	mat_list[0] = new Material(color(0.65, 0.05, 0.05), 1.0, MaterialType::LAMBERTIAN);	//红
+	mat_list[1] = new Material(color(0.73, 0.73, 0.73), 1.0, MaterialType::LAMBERTIAN);	//白
+	mat_list[2] = new Material(color(0.12, 0.45, 0.15), 1.0, MaterialType::LAMBERTIAN);	//绿
+	mat_list[3] = new Material(color(15, 15, 15), 1.0, MaterialType::DIFFUSE_LIGHT);		//光
 
-	//objects[cur++] = new hit_object(new yz_rect(0.0, 555.0, 0.0, 555.0, 555.0, mat_list[2]));	//左
-	//objects[cur++] = new hit_object(new yz_rect(0.0, 555.0, 0.0, 555.0, 0.0, mat_list[0]));		//右
-	//objects[cur++] = new hit_object(new xz_rect(213.0, 343.0, 227.0, 332.0, 554.0, mat_list[3]));	//灯光
-	//objects[cur++] = new hit_object(new xz_rect(0.0, 555.0, 0.0, 555.0, 0.0, mat_list[1]));		//下
-	//objects[cur++] = new hit_object(new xz_rect(0.0, 555.0, 0.0, 555.0, 555.0, mat_list[1]));	//上
-	//objects[cur++] = new hit_object(new xy_rect(0.0, 555.0, 0.0, 555.0, 555.0, mat_list[1]));	//后
-	//objects[cur++] = new hit_object(new box(point3(0.0, 0.0, 0.0), point3(165.0, 330.0, 165.0), mat_list[1]));  //前
-	//																											//objects[cur - 1]->rotate(15.0, 1);
-	//objects[cur - 1]->translate(vec3(265.0, 0.0, 295.0));
-	//objects[cur++] = new hit_object(new box(point3(0.0, 0.0, 0.0), point3(165.0, 165.0, 165.0), mat_list[1])); //后
-	//																										   //objects[cur - 1]->rotate(-18.0,1);
-	//objects[cur - 1]->translate(vec3(130.0, 0.0, 65.0));
+	objects[cur++] = new HitObject(new YZ_Rect(0.0, 555.0, 0.0, 555.0, 555.0, mat_list[2]));	//左
+	objects[cur++] = new HitObject(new YZ_Rect(0.0, 555.0, 0.0, 555.0, 0.0, mat_list[0]));		//右
+	objects[cur++] = new HitObject(new XZ_Rect(213.0, 343.0, 227.0, 332.0, 554.0, mat_list[3]));	//灯光
+	objects[cur++] = new HitObject(new XZ_Rect(0.0, 555.0, 0.0, 555.0, 0.0, mat_list[1]));		//下
+	objects[cur++] = new HitObject(new XZ_Rect(0.0, 555.0, 0.0, 555.0, 555.0, mat_list[1]));	//上
+	objects[cur++] = new HitObject(new XY_Rect(0.0, 555.0, 0.0, 555.0, 555.0, mat_list[1]));	//后
+	objects[cur++] = new HitObject(new Box(point3(0.0, 0.0, 0.0), point3(165.0, 330.0, 165.0), mat_list[1]));  //前
+	//objects[cur - 1]->rotate(15.0, 1);
+	objects[cur - 1]->Translate(vec3(265.0, 0.0, 295.0));
+	objects[cur++] = new HitObject(new Box(point3(0.0, 0.0, 0.0), point3(165.0, 165.0, 165.0), mat_list[1])); //后
+	//objects[cur - 1]->rotate(-18.0,1);
+	objects[cur - 1]->Translate(vec3(130.0, 0.0, 65.0));
 }
 
 
@@ -134,7 +134,7 @@ bool Hittable_list::Hit(const ray& r, double t_min, double t_max, hit_record& re
 	return hit_anything;
 }
 
-void make_scene_device(Hittable_list** scene, const size_t size, unsigned char* img_ptr) {
+__global__ void make_scene_device(Hittable_list** scene, const size_t size, unsigned char* img_ptr) {
 	printf("Loading secne...\n");
 	//Moon::ImageTexture* tex_img = new Moon::ImageTexture(img_ptr, 1024, 512);
 	//*scene = new Hittable_list(size, tex_img);
@@ -143,7 +143,7 @@ void make_scene_device(Hittable_list** scene, const size_t size, unsigned char* 
 	printf("Scene loading is done!\n");
 }
 
-void destroy_scene_device(Hittable_list** scene) {
+__global__ void destroy_scene_device(Hittable_list** scene) {
 	delete *scene;
 	*scene = nullptr;
 }

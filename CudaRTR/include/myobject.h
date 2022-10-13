@@ -2,11 +2,8 @@
 #ifndef MOON_MYOBJECT_H_
 #define MOON_MYOBJECT_H_
 
-#include <include/hittable.h>
 #include <include/my_utility.h>
-
-extern enum class MaterialType;
-extern class Material;
+#include <include/material.h>
 
 enum class ObjectType {SPHERE, MOVING_SPHERE, XY_RECT, XZ_RECT, YZ_RECT, BOX};
 
@@ -78,7 +75,7 @@ class YZ_Rect {
 class Box {
  public:
    __device__ __host__ Box(const point3& p0, const point3& p1, Material* ptr);
-   __device__ void  Update();
+   __device__ __host__ void  Update();
    __device__
    bool Hit(const ray& r, double t_min, double t_max, hit_record& rec);
  public:
@@ -98,7 +95,7 @@ public:
    __device__ __host__ HitObject(YZ_Rect* _rect) { hit_sphere = nullptr; hit_moving_sphere = nullptr; hit_xy_rect = nullptr; hit_xz_rect = nullptr; hit_yz_rect = _rect; hit_box = nullptr; hit_type = ObjectType::YZ_RECT; }
    __device__ __host__ HitObject(Box* _box) { hit_sphere = nullptr; hit_moving_sphere = nullptr; hit_xy_rect = nullptr; hit_xz_rect = nullptr; hit_yz_rect = nullptr; hit_box = _box; hit_type = ObjectType::BOX; }
   
-   __device__ void Translate(const vec3& displacement);
+   __device__ __host__ void Translate(const vec3& displacement);
    __device__ bool Hit(const ray& r, double t_min, double t_max, hit_record& rec);
  public:
    Sphere* hit_sphere;

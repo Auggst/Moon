@@ -31,7 +31,7 @@
 //#define SAMPLES 100
 //#define MAX_DEPTH 20
 //
-////打印设备信息
+//////打印设备信息
 //void get_device_info() {
 //    auto device_count = 0;
 //    cudaGetDeviceCount(&device_count);

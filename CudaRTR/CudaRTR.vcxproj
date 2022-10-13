@@ -94,6 +94,7 @@
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <Include>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\include;%(Include)</Include>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -157,25 +158,27 @@
     <CudaCompile Include="src\kernel.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\camera.h" />
-    <ClInclude Include="include\engine.h" />
+    <CudaCompile Include="include\camera.h" />
+    <CudaCompile Include="include\device_manage.h" />
+    <CudaCompile Include="include\engine.h" />
     <ClInclude Include="include\GLFW\glfw3.h" />
     <ClInclude Include="include\GLFW\glfw3native.h" />
     <ClInclude Include="include\GL\eglew.h" />
     <ClInclude Include="include\GL\glew.h" />
     <ClInclude Include="include\GL\glxew.h" />
     <ClInclude Include="include\GL\wglew.h" />
-    <ClInclude Include="include\helper_cuda.h" />
-    <ClInclude Include="include\helper_string.h" />
-    <ClInclude Include="include\hittable.h" />
-    <ClInclude Include="include\material.h" />
-    <ClInclude Include="include\my_utility.h" />
-    <ClInclude Include="include\ray.h" />
-    <ClInclude Include="include\hittable_list.h" />
-    <ClInclude Include="include\myobject.h" />
+    <CudaCompile Include="include\helper_cuda.h" />
+    <CudaCompile Include="include\helper_string.h" />
+    <CudaCompile Include="include\hittable.h" />
+    <CudaCompile Include="include\material.h" />
+    <CudaCompile Include="include\my_utility.h" />
+    <CudaCompile Include="include\ray.h" />
+    <CudaCompile Include="include\hittable_list.h" />
+    <CudaCompile Include="include\myobject.h" />
+    <CudaCompile Include="include\renderer.h" />
     <ClInclude Include="include\stb_image.h" />
-    <ClInclude Include="include\texture.h" />
-    <ClInclude Include="include\vec3.h" />
+    <CudaCompile Include="include\texture.h" />
+    <CudaCompile Include="include\vec3.h" />
     <ClInclude Include="vendor\GLFW\glfw3.h" />
     <ClInclude Include="vendor\GLFW\glfw3native.h" />
     <ClInclude Include="vendor\GL\eglew.h" />
@@ -193,13 +196,15 @@
     <ClInclude Include="vendor\imgui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\camera.cpp" />
-    <ClCompile Include="src\engine.cpp" />
-    <ClCompile Include="src\hittable_list.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\material.cpp" />
-    <ClCompile Include="src\myobject.cpp" />
-    <ClCompile Include="src\texture.cpp" />
+    <CudaCompile Include="src\camera.cpp" />
+    <CudaCompile Include="src\device_manage.cpp" />
+    <CudaCompile Include="src\engine.cpp" />
+    <CudaCompile Include="src\hittable_list.cpp" />
+    <CudaCompile Include="src\material.cpp" />
+    <CudaCompile Include="src\myobject.cpp" />
+    <CudaCompile Include="src\main.cpp" />
+    <CudaCompile Include="src\renderer.cpp" />
+    <CudaCompile Include="src\texture.cpp" />
     <ClCompile Include="vendor\imgui\imgui.cpp" />
     <ClCompile Include="vendor\imgui\imgui_demo.cpp" />
     <ClCompile Include="vendor\imgui\imgui_draw.cpp" />

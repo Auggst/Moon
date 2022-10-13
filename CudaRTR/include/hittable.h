@@ -4,9 +4,7 @@
 
 #include <include/ray.h>
 
-extern enum class MaterialType;
-extern class Material;
-
+class Material;
 
 struct hit_record {
 	point3 p;

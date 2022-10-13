@@ -43,7 +43,7 @@ ray Camera::get_ray(double s, double t, curandStateXORWOW_t* state) const {
 	);
 }
 
-void make_camera_device(Camera** cam) {
+__global__ void make_camera_device(Camera** cam) {
   printf("Loading camera...\n");
   //*cam = new camera();
   point3 lookfrom(278.0, 278.0, -800.0);
@@ -55,7 +55,7 @@ void make_camera_device(Camera** cam) {
   printf("Camera loading is done!\n");
 }
 
-void destroy_camera_device(Camera** cam) {
+__global__ void destroy_camera_device(Camera** cam) {
   delete* cam;
   *cam = nullptr;
 }
